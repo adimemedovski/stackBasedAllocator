@@ -137,6 +137,30 @@ void testIncrementBufferOffset(void) {
      */
     TEST_ASSERT_TRUE(incrementBufferOffset(&buffer, overFlowAmount -1));
     TEST_ASSERT_EQUAL_size_t(MAX_MEMORY_BUFFER_SIZE, buffer.bufferOffset);
+
+    /*
+     * Cleaning up buffer after test one was completed.
+     */
+    buffer.bufferOffset = 0;
+    buffer.ptrToVirtualAddressSpace = NULL;
+    buffer.lastPtr = NULL;
+}
+
+void testValidateParamsOfSalloc(void) {
+    MemoryBuffer buffer;
+    initMemoryBuffer(&buffer);
+
+    /*
+     * Test One: Expected conditions.
+     */
+    TEST_ASSERT_TRUE(validateParamsOfSalloc(&buffer, 30, 8));
+
+    /*
+     * Test Two: Unexpected conditions.
+     */
+    TEST_ASSERT_FALSE(validateParamsOfSalloc(&buffer, 0, 30));
+    TEST_ASSERT_FALSE(validateParamsOfSalloc(&buffer, 30, 0));
+    TEST_ASSERT_FALSE(validateParamsOfSalloc(&buffer, 0, 0));
 }
 
 int main(void) {

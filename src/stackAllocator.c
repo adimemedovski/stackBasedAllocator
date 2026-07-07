@@ -87,3 +87,28 @@ bool incrementBufferOffset(MemoryBuffer *buffer, size_t offsetAmount) {
     return true;
 }
 
+bool validateParamsOfSalloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment) {
+    if (!validateMemoryBufferInit(buffer)) {
+        fprintf(stderr, "Error: Cannot call salloc due to memory buffer failing validation check.\n");
+        return false;
+    } 
+    
+    if (blockSize == 0) {
+        fprintf(stderr, "Error: Cannot call salloc due to block size being 0.\n");
+        return false;
+    }
+
+    if (alignment == 0) {
+        fprintf(stderr, "Error: Cannot call salloc due to alignment being 0.\n");
+        return false;
+    }
+
+    if (buffer -> bufferOffset + getAlignmentPadding(buffer, alignment) > MAX_MEMORY_BUFFER_SIZE - blockSize) {
+        fprintf(stderr, "Error: Cannot call salloc due to buffer overflow.\n");
+        return false;
+    }
+
+    return true;
+}
+
+

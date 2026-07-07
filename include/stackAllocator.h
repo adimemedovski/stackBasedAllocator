@@ -34,4 +34,6 @@ size_t getAlignmentPadding(MemoryBuffer *buffer, size_t alignment);
 
 bool incrementBufferOffset(MemoryBuffer *buffer, size_t offsetAmount);
 
+bool validateParamsOfSalloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment);
+
 #endif
