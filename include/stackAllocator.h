@@ -30,10 +30,26 @@ Pointer makePointer(void *currentPtr, void *previousPtr, size_t bytesOccupying);
  */
 bool validateMemoryBufferInit(MemoryBuffer *buffer);
 
+/*
+ * Will make static after testing phase is over.
+ */
 size_t getAlignmentPadding(MemoryBuffer *buffer, size_t alignment);
 
+/*
+ * Will make static after testing phase is over.
+ */
 bool incrementBufferOffset(MemoryBuffer *buffer, size_t offsetAmount);
 
+/*
+ * Will make static after testing phase is over.
+ */
 bool validateParamsOfSalloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment);
+
+/*
+ * Will make static after testing phase is over.
+ */
+bool pushPointer(MemoryBuffer *buffer, Pointer pointer);
+
+// void *salloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment);
 
 #endif

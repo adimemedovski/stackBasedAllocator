@@ -111,4 +111,36 @@ bool validateParamsOfSalloc(MemoryBuffer *buffer, size_t blockSize, size_t align
     return true;
 }
 
+bool pushPointer(MemoryBuffer *buffer, Pointer pointer) {
+    if (!validateMemoryBufferInit(buffer)) {
+        fprintf(stderr, "Error: Failed to push pointer as memory buffer failed validation check.\n");
+        return false;
+    } 
+
+    pointer.previousPtr = buffer -> lastPtr;
+    buffer -> lastPtr = &pointer;
+    
+    return true;
+}
+
+//void *salloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment) {
+ //   if (!validateParamsOfSalloc(buffer, blockSize, alignment)) {
+ //       fprintf(stderr, "Error: Failed to call salloc as validation failed.\n");
+  //      return NULL;
+   // }
+    
+    //size_t theAlignment = getAlignmentPadding(buffer, alignment);
+    //size_t bytesOccupying = blockSize + theAlignment; 
+     
+
+//}
+
+
+
+
+
+
+
+
+
 

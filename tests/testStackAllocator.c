@@ -161,6 +161,39 @@ void testValidateParamsOfSalloc(void) {
     TEST_ASSERT_FALSE(validateParamsOfSalloc(&buffer, 0, 30));
     TEST_ASSERT_FALSE(validateParamsOfSalloc(&buffer, 30, 0));
     TEST_ASSERT_FALSE(validateParamsOfSalloc(&buffer, 0, 0));
+
+    /*
+     * Cleaning up buffer after test one was completed.
+     */
+    buffer.bufferOffset = 0;
+    buffer.ptrToVirtualAddressSpace = NULL;
+    buffer.lastPtr = NULL;
+}
+
+void testPushPointer(void) {
+    MemoryBuffer buffer;
+    initMemoryBuffer(&buffer);
+
+    /*
+     * Test One: Testing for expected functionality.
+     */
+    size_t integerOne = 33;
+    size_t integerTwo = 44;
+    size_t integerThree = 666;
+    
+    void *ptrOne = (void*) &integerOne;
+    void *ptrTwo = (void*) &integerTwo;
+    void *ptrThree = (void*) &integerThree;
+
+    Pointer pointerOne = makePointer(ptrOne, ptrTwo, 8);
+    
+    TEST_ASSERT_TRUE(pushPointer(&buffer, pointerOne));
+    TEST_ASSERT_EQUAL_size_t(8, buffer.lastPtr -> bytesOccupying);
+    
+    Pointer pointerTwo = makePointer(ptrTwo, ptrThree, 666);
+
+    TEST_ASSERT_TRUE(pushPointer(&buffer, pointerTwo));
+    TEST_ASSERT_EQUAL_size_t(666, buffer.lastPtr -> bytesOccupying);
 }
 
 int main(void) {
@@ -171,6 +204,7 @@ int main(void) {
     RUN_TEST(testValidateMemoryBuffer);
     RUN_TEST(testGetAlignmentPadding);
     RUN_TEST(testIncrementBufferOffset);
+    RUN_TEST(testPushPointer);
 
     return UNITY_END();
 }
