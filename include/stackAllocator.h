@@ -4,8 +4,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#define MAX_MEMORY_BUFFER_SIZE ((size_t) 4096 * 10)
+
 typedef struct {
-    void *thisPtr; 
+    void *currentPtr; 
     void *previousPtr;
     size_t bytesOccupying; // block size + padding.
 } Pointer;
@@ -16,5 +18,8 @@ typedef struct {
     Pointer *lastPtr;
 } MemoryBuffer;
 
+bool initMemoryBuffer(MemoryBuffer *buffer);
+
+Pointer makePointer(void *currentPtr, void *previousPtr, size_t bytesOccupying);
 
 #endif
