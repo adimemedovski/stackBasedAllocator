@@ -83,6 +83,7 @@ bool incrementBufferOffset(MemoryBuffer *buffer, size_t offsetAmount) {
     }
 
     buffer -> bufferOffset += offsetAmount;
-
+    
+    return true;
 }
 

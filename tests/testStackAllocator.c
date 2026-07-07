@@ -104,6 +104,39 @@ void testGetAlignmentPadding(void) {
     TEST_ASSERT_EQUAL_size_t(0, getAlignmentPadding(&buffer, _Alignof(size_t)));
 
     // More tests need to be conducted her for various cases.
+
+    /*
+     * Cleaning up buffer after test one was completed.
+     */
+    buffer.bufferOffset = 0;
+    buffer.ptrToVirtualAddressSpace = NULL;
+    buffer.lastPtr = NULL;
+}
+
+void testIncrementBufferOffset(void) {
+    MemoryBuffer buffer;
+    initMemoryBuffer(&buffer);
+
+    /*
+     * Test One: Testing under expected situations.
+     */
+    TEST_ASSERT_TRUE(incrementBufferOffset(&buffer, 66));
+    TEST_ASSERT_EQUAL_size_t(66, buffer.bufferOffset);
+    
+    /*
+     * Test Two: Testing if buffer overflows are handled.
+     */
+    
+    size_t overFlowAmount = MAX_MEMORY_BUFFER_SIZE - buffer.bufferOffset + 1;
+    TEST_ASSERT_FALSE(incrementBufferOffset(&buffer, overFlowAmount));
+    TEST_ASSERT_EQUAL_size_t(66, buffer.bufferOffset);
+
+    /*
+     * Test Three: Testing if buffer overflows when bufferOffset is
+     * at the max memory size.
+     */
+    TEST_ASSERT_TRUE(incrementBufferOffset(&buffer, overFlowAmount -1));
+    TEST_ASSERT_EQUAL_size_t(MAX_MEMORY_BUFFER_SIZE, buffer.bufferOffset);
 }
 
 int main(void) {
@@ -113,6 +146,7 @@ int main(void) {
     RUN_TEST(testMakePointer);
     RUN_TEST(testValidateMemoryBuffer);
     RUN_TEST(testGetAlignmentPadding);
+    RUN_TEST(testIncrementBufferOffset);
 
     return UNITY_END();
 }
