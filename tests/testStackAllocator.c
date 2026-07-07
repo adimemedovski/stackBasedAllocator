@@ -53,6 +53,57 @@ void testMakePointer(void) {
     TEST_ASSERT_TRUE(pointer.currentPtr == &integerOne);
     TEST_ASSERT_TRUE(pointer.previousPtr == &integerTwo);
     TEST_ASSERT_EQUAL_size_t(bytesOccupying, pointer.bytesOccupying);
+
+    /*
+     * Cleaning up buffer after test one was completed.
+     */
+    buffer.bufferOffset = 0;
+    buffer.ptrToVirtualAddressSpace = NULL;
+    buffer.lastPtr = NULL;
+}
+
+void testValidateMemoryBuffer(void) {
+    /*
+     * Test 1: Testing if normally initialised memory buffer
+     * passes the validation test -- it is expected to.
+     */
+    MemoryBuffer buffer;
+    initMemoryBuffer(&buffer);
+
+    TEST_ASSERT_TRUE(validateMemoryBufferInit(&buffer));
+
+    /*
+     * Cleaning up buffer after test one was completed.
+     */
+    buffer.bufferOffset = 0;
+    buffer.ptrToVirtualAddressSpace = NULL;
+    buffer.lastPtr = NULL;
+
+    /*
+     * Test 2: Testing if validation test returns false
+     * if memory buffer was poorly initialised.
+     */
+    
+    MemoryBuffer bufferTwo;
+
+    TEST_ASSERT_FALSE(validateMemoryBufferInit(&buffer));
+}
+
+void testGetAlignmentPadding(void) {
+    MemoryBuffer buffer;
+    initMemoryBuffer(&buffer);
+
+    /*
+     * Test 1: Testing alignment padding if alignment == 0.
+     */
+    TEST_ASSERT_EQUAL_size_t((size_t) -1, getAlignmentPadding(&buffer, 0));
+
+    /*
+     * Test 2: Testing for expected alignment.
+     */
+    TEST_ASSERT_EQUAL_size_t(0, getAlignmentPadding(&buffer, _Alignof(size_t)));
+
+    // More tests need to be conducted her for various cases.
 }
 
 int main(void) {
@@ -60,6 +111,8 @@ int main(void) {
 
     RUN_TEST(testInitMemoryBuffer);
     RUN_TEST(testMakePointer);
+    RUN_TEST(testValidateMemoryBuffer);
+    RUN_TEST(testGetAlignmentPadding);
 
     return UNITY_END();
 }

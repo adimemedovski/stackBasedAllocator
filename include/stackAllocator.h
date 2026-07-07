@@ -20,6 +20,18 @@ typedef struct {
 
 bool initMemoryBuffer(MemoryBuffer *buffer);
 
+/*
+ * Will make static after testing phase is over.
+ */
 Pointer makePointer(void *currentPtr, void *previousPtr, size_t bytesOccupying);
+
+/*
+ * Will make static after testing phase is over.
+ */
+bool validateMemoryBufferInit(MemoryBuffer *buffer);
+
+size_t getAlignmentPadding(MemoryBuffer *buffer, size_t alignment);
+
+bool incrementBufferOffset(MemoryBuffer *buffer, size_t offsetAmount);
 
 #endif
