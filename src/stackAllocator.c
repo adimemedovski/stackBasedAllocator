@@ -7,7 +7,7 @@
 
 bool initMemoryBuffer(MemoryBuffer *buffer) {
     buffer -> bufferOffset = 0;
-    buffer -> lastPtr = NULL;
+    buffer -> lastPtr = (Pointer*) NULL;
 
     buffer -> ptrToVirtualAddressSpace = (void*) mmap(NULL, MAX_MEMORY_BUFFER_SIZE,
             PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS,
@@ -117,7 +117,7 @@ bool validateParamsOfSalloc(MemoryBuffer *buffer, size_t blockSize, size_t align
         return false;
     }
 
-    if (buffer -> bufferOffset + getAlignmentPadding(buffer, alignment) > MAX_MEMORY_BUFFER_SIZE - blockSize) {
+    if (buffer -> bufferOffset > MAX_MEMORY_BUFFER_SIZE - blockSize - getAlignmentPadding(buffer, alignment)) {
         fprintf(stderr, "Error: Cannot call salloc due to buffer overflow.\n");
         return false;
     }
@@ -130,6 +130,16 @@ bool pushPointer(MemoryBuffer *buffer, Pointer *pointer) {
         fprintf(stderr, "Error: Failed to push pointer as memory buffer failed validation check.\n");
         return false;
     } 
+    
+    if (buffer -> lastPtr == (Pointer*) NULL) {
+        buffer -> lastPtr = pointer;
+        return true;
+    }
+    
+    if (buffer -> lastPtr == pointer -> previousPtr) {
+        buffer -> lastPtr = pointer;
+        return true;
+    }
 
     pointer -> previousPtr = buffer -> lastPtr;
     buffer -> lastPtr = pointer;
@@ -157,8 +167,41 @@ void *salloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment) {
 
     size_t theAlignment = getAlignmentPadding(buffer, alignment);
     size_t bytesOccupying = blockSize + theAlignment; 
+    
+    if (buffer -> bufferOffset > MAX_MEMORY_BUFFER_SIZE - bytesOccupying) {
+        fprintf(stderr, "Error: Cannot call salloc due to buffer overflow error.\n");
+        return NULL;
+    }
+    
+    char* currentPtr = (char*) buffer -> ptrToVirtualAddressSpace;
+    currentPtr += bytesOccupying + buffer -> bufferOffset;
+   
+    if (!incrementBufferOffset(buffer, bytesOccupying)) {
+        fprintf(stderr, "Error: Failed to call salloc due to buffer overflow.\n");
+        return NULL;
+    }
+    
+    Pointer pointer; 
 
+    if (buffer -> lastPtr == (Pointer*) NULL) {
+        pointer = makePointer((void*) currentPtr, (Pointer*) NULL, bytesOccupying);
+        
+        if (!pushPointer(buffer, &pointer)) {
+            fprintf(stderr, "Error: Failed to call salloc as pushPointer failed.\n");
+            return NULL;
+        }
 
+        return (void*) currentPtr;
+    }
+    
+    pointer = makePointer((void*) currentPtr, buffer -> lastPtr, bytesOccupying);
+    
+    if (!pushPointer(buffer, &pointer)) {
+        fprintf(stderr, "Error: Failed to call salloc as pushPointer failed.\n");
+        return NULL;
+    }
+
+    return (void*) currentPtr;
 }
 
 

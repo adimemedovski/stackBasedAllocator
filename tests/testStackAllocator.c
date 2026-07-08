@@ -235,8 +235,43 @@ void testPopPointer(void) {
      */
     
     TEST_ASSERT_TRUE(popPointer(&buffer));
-    
     TEST_ASSERT_FALSE(popPointer(&buffer));
+    
+    /*
+     * Cleaning up buffer after test one was completed.
+     */
+    buffer.bufferOffset = 0;
+    buffer.ptrToVirtualAddressSpace = NULL;
+    buffer.lastPtr = NULL;
+}
+
+void testSalloc(void) {
+    MemoryBuffer buffer;
+    initMemoryBuffer(&buffer);
+
+    /*
+     * Test One: Testing expected functionality.
+     */
+    size_t *ptrOne = (size_t*) salloc(&buffer, sizeof(size_t) * 3, _Alignof(size_t));            
+    
+    TEST_ASSERT_EQUAL_size_t(24, buffer.bufferOffset);
+    
+    ptrOne[0] = 3;
+    ptrOne[1] = 6;
+    ptrOne[2] = 9;
+
+    TEST_ASSERT_EQUAL_size_t(3, ptrOne[0]);
+    TEST_ASSERT_EQUAL_size_t(6, ptrOne[1]);
+    TEST_ASSERT_EQUAL_size_t(9, ptrOne[2]);
+    
+    TEST_ASSERT_TRUE(buffer.lastPtr -> bytesOccupying == 24);
+    
+    size_t *ptrTwo = (size_t*) salloc(&buffer, sizeof(size_t) * 2, _Alignof(size_t));
+    
+    TEST_ASSERT_TRUE(buffer.lastPtr -> bytesOccupying == 16);
+    TEST_ASSERT_EQUAL_size_t(24 + 16, buffer.bufferOffset);  
+    TEST_ASSERT_EQUAL_size_t(16, buffer.lastPtr -> bytesOccupying); 
+    TEST_ASSERT_EQUAL_size_t(24, buffer.lastPtr -> previousPtr -> bytesOccupying);
 }
 
 int main(void) {
@@ -249,6 +284,7 @@ int main(void) {
     RUN_TEST(testIncrementBufferOffset);
     RUN_TEST(testPushPointer);
     RUN_TEST(testPopPointer);
+    RUN_TEST(testSalloc);
 
     return UNITY_END();
 }

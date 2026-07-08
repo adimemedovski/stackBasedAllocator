@@ -57,6 +57,6 @@ bool pushPointer(MemoryBuffer *buffer, Pointer *pointer);
 
 bool popPointer(MemoryBuffer *buffer);
 
-// void *salloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment);
+void *salloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment);
 
 #endif
