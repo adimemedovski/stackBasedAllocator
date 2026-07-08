@@ -44,16 +44,18 @@ void testMakePointer(void) {
     size_t integerOne = 666;
     size_t integerTwo = 999;
 
-    void *currentPtr = &integerOne;
-    void *previousPtr = &integerTwo;
-    size_t bytesOccupying = 30;
-
-    Pointer pointer = makePointer(currentPtr, previousPtr, bytesOccupying);
+    void *integerOnePtr = &integerOne;
+    void *integerTwoPtr = &integerTwo; 
+    size_t bytesOccupyingOne = 666;
+    size_t bytesOccupyingTwo = 888;
     
-    TEST_ASSERT_TRUE(pointer.currentPtr == &integerOne);
-    TEST_ASSERT_TRUE(pointer.previousPtr == &integerTwo);
-    TEST_ASSERT_EQUAL_size_t(bytesOccupying, pointer.bytesOccupying);
+    Pointer previousPointer = makePointer(integerOnePtr, (Pointer*) NULL, bytesOccupyingOne);
+    Pointer pointer = makePointer(integerTwoPtr, &previousPointer, bytesOccupyingTwo);
 
+    TEST_ASSERT_TRUE(pointer.currentPtr == &integerTwo);
+    TEST_ASSERT_TRUE(pointer.previousPtr == &previousPointer);
+    TEST_ASSERT_EQUAL_size_t(bytesOccupyingTwo, pointer.bytesOccupying);
+    
     /*
      * Cleaning up buffer after test one was completed.
      */
@@ -194,6 +196,9 @@ void testPushPointer(void) {
 
     TEST_ASSERT_TRUE(pushPointer(&buffer, pointerTwo));
     TEST_ASSERT_EQUAL_size_t(666, buffer.lastPtr -> bytesOccupying);
+    
+
+    TEST_ASSERT_EQUAL_size_t(8, buffer.lastPtr -> previousPtr -> bytesOccupying);
 }
 
 int main(void) {

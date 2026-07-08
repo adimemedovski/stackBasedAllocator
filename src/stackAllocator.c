@@ -21,11 +21,11 @@ bool initMemoryBuffer(MemoryBuffer *buffer) {
     return true;
 }
 
-Pointer makePointer(void *currentPtr, void *previousPtr, size_t bytesOccupying) {
+Pointer makePointer(void *currentPtr, Pointer *previousPointer, size_t bytesOccupying) {
     Pointer pointer;
 
     pointer.currentPtr = currentPtr; 
-    pointer.previousPtr = previousPtr;
+    pointer.previousPtr = previousPointer;
     pointer.bytesOccupying = bytesOccupying;
 
     return pointer;
@@ -135,6 +135,15 @@ bool pushPointer(MemoryBuffer *buffer, Pointer pointer) {
     buffer -> lastPtr = &pointer;
     
     return true;
+}
+
+bool popPointer(MemoryBuffer *buffer, Pointer pointer) {
+    if (buffer -> lastPtr == (Pointer*) NULL) {
+        fprintf(stderr, "Error: Cannot pop pointer from buffer, as buffer has no last ptr.\n");
+        return false;
+    }
+
+    
 }
 
 //void *salloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment) {
