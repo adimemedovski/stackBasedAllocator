@@ -53,9 +53,9 @@ bool validateParamsOfSalloc(MemoryBuffer *buffer, size_t blockSize, size_t align
 /*
  * Will make static after testing phase is over.
  */
-bool pushPointer(MemoryBuffer *buffer, Pointer pointer);
+bool pushPointer(MemoryBuffer *buffer, Pointer *pointer);
 
-bool popPointer(MemoryBuffer *buffer, Pointer pointer);
+bool popPointer(MemoryBuffer *buffer);
 
 // void *salloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment);
 

@@ -189,16 +189,54 @@ void testPushPointer(void) {
 
     Pointer pointerOne = makePointer(ptrOne, ptrTwo, 8);
     
-    TEST_ASSERT_TRUE(pushPointer(&buffer, pointerOne));
+    TEST_ASSERT_TRUE(pushPointer(&buffer, &pointerOne));
     TEST_ASSERT_EQUAL_size_t(8, buffer.lastPtr -> bytesOccupying);
     
     Pointer pointerTwo = makePointer(ptrTwo, ptrThree, 666);
 
-    TEST_ASSERT_TRUE(pushPointer(&buffer, pointerTwo));
+    TEST_ASSERT_TRUE(pushPointer(&buffer, &pointerTwo));
     TEST_ASSERT_EQUAL_size_t(666, buffer.lastPtr -> bytesOccupying);
     
 
     TEST_ASSERT_EQUAL_size_t(8, buffer.lastPtr -> previousPtr -> bytesOccupying);
+
+    /*
+     * Cleaning up buffer after test one was completed.
+     */
+    buffer.bufferOffset = 0;
+    buffer.ptrToVirtualAddressSpace = NULL;
+    buffer.lastPtr = NULL;
+}
+
+void testPopPointer(void) {
+    MemoryBuffer buffer;
+    initMemoryBuffer(&buffer);
+   
+    /*
+     * Test One: Testing expected functionality.
+     */
+    size_t integerOne = 666;
+    size_t integerTwo = 777; 
+    
+    void *ptrOne = &integerOne;
+    void *ptrTwo = &integerTwo;
+
+    Pointer pointerOne = makePointer(ptrOne, (Pointer*) NULL, 111);
+    Pointer pointerTwo = makePointer(ptrTwo, &pointerOne, 222);
+    
+    pushPointer(&buffer, &pointerOne);
+    pushPointer(&buffer, &pointerTwo);
+    
+    TEST_ASSERT_TRUE(popPointer(&buffer));
+    TEST_ASSERT_TRUE(buffer.lastPtr == &pointerOne);
+    
+    /*
+     * Test Two: Edge case tests.
+     */
+    
+    TEST_ASSERT_TRUE(popPointer(&buffer));
+    
+    TEST_ASSERT_FALSE(popPointer(&buffer));
 }
 
 int main(void) {
@@ -210,6 +248,7 @@ int main(void) {
     RUN_TEST(testGetAlignmentPadding);
     RUN_TEST(testIncrementBufferOffset);
     RUN_TEST(testPushPointer);
+    RUN_TEST(testPopPointer);
 
     return UNITY_END();
 }
