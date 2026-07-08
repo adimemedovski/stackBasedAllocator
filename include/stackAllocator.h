@@ -30,6 +30,12 @@ Pointer makePointer(void *currentPtr, void *previousPtr, size_t bytesOccupying);
  */
 bool validateMemoryBufferInit(MemoryBuffer *buffer);
 
+
+/*
+ * Will make static after testing phase is over.
+ */
+bool validateMemoryBuffer(MemoryBuffer *buffer);
+
 /*
  * Will make static after testing phase is over.
  */

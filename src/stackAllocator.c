@@ -50,6 +50,20 @@ bool validateMemoryBufferInit(MemoryBuffer *buffer) {
     return true;
 }
 
+bool validateMemoryBuffer(MemoryBuffer *buffer) {
+    if (buffer == NULL) {
+        fprintf(stderr, "Error: Buffer is not valid. Initialsed poorly.\n");
+        return false;
+    }
+
+    if (buffer -> ptrToVirtualAddressSpace == MAP_FAILED || buffer -> ptrToVirtualAddressSpace == NULL) {
+        fprintf(stderr, "Error: Buffer is not valid as ptrToVirtualAddressSpace is invalid.\n ");
+        return false;
+    }
+
+    return true;
+}
+
 /*
  * Be cautious when using this function, as an alignment being 0
  * can return a value which hides a division by zero error.
@@ -72,7 +86,7 @@ size_t getAlignmentPadding(MemoryBuffer *buffer, size_t alignment) {
 }
 
 bool incrementBufferOffset(MemoryBuffer *buffer, size_t offsetAmount) {
-    if (!validateMemoryBufferInit(buffer)) {
+    if (!validateMemoryBuffer(buffer)) {
         fprintf(stderr, "Error: Failed to increment buffer offset as memory buffer failed validation.\n");
         return false;
     }
@@ -88,7 +102,7 @@ bool incrementBufferOffset(MemoryBuffer *buffer, size_t offsetAmount) {
 }
 
 bool validateParamsOfSalloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment) {
-    if (!validateMemoryBufferInit(buffer)) {
+    if (!validateMemoryBuffer(buffer)) {
         fprintf(stderr, "Error: Cannot call salloc due to memory buffer failing validation check.\n");
         return false;
     } 
@@ -112,7 +126,7 @@ bool validateParamsOfSalloc(MemoryBuffer *buffer, size_t blockSize, size_t align
 }
 
 bool pushPointer(MemoryBuffer *buffer, Pointer pointer) {
-    if (!validateMemoryBufferInit(buffer)) {
+    if (!validateMemoryBuffer(buffer)) {
         fprintf(stderr, "Error: Failed to push pointer as memory buffer failed validation check.\n");
         return false;
     } 
