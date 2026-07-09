@@ -1,0 +1,75 @@
+#define _GNU_SOURCE
+
+#include "stackAllocator.h"
+#include "unity.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include <string.h>
+
+void setUp(void) {
+
+}
+
+void tearDown(void) {
+
+}
+
+void testInitMemoryBuffer(void) {
+   
+    /*
+     * Test One: Testing basic functionality.
+     */
+    MemoryBuffer buffer;
+    
+    TEST_ASSERT_TRUE(initMemoryBuffer(&buffer));
+    TEST_ASSERT_EQUAL_size_t(0, buffer.bufferOffset);
+    TEST_ASSERT_EQUAL_size_t(0, buffer.sizeOfTracker); 
+    TEST_ASSERT_TRUE(buffer.ptrToVirtualAddressSpace != NULL || buffer.ptrToVirtualAddressSpace == MAP_FAILED);
+ 
+    buffer.allocationSizeTracker[0] = 3;
+    TEST_ASSERT_EQUAL_size_t(3, buffer.allocationSizeTracker[0]);
+   
+    /*
+     * Clean up.
+     */
+    munmap(buffer.ptrToVirtualAddressSpace, MAX_MEMORY_BUFFER_SIZE);
+    buffer.ptrToVirtualAddressSpace = NULL; 
+    buffer.bufferOffset = 0;
+    buffer.sizeOfTracker = 0;
+    memset(buffer.allocationSizeTracker, 0, sizeof(buffer.allocationSizeTracker));
+}
+
+
+void testValidateMemoryBufferInit(void) {
+    MemoryBuffer buffer;
+    initMemoryBuffer(&buffer);
+   
+    /*
+     * Test One: Testing basic functionality.
+     */
+    TEST_ASSERT_TRUE(validateMemoryBufferInit(&buffer));
+  
+    /*
+     * Clean up.
+     */
+    munmap(buffer.ptrToVirtualAddressSpace, MAX_MEMORY_BUFFER_SIZE);
+    buffer.bufferOffset = 0;
+    buffer.sizeOfTracker = 0;
+
+    /*
+     * Test Two: Edge case test.
+     */
+    MemoryBuffer bufferTwo;
+    TEST_ASSERT_FALSE(validateMemoryBufferInit(&bufferTwo));
+}
+
+int main(void) {
+    UNITY_BEGIN();
+
+    RUN_TEST(testInitMemoryBuffer);
+    RUN_TEST(testValidateMemoryBufferInit);
+
+    return UNITY_END();
+}
+
+
