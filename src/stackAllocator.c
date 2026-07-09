@@ -122,9 +122,12 @@ void *salloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment) {
         fprintf(stderr, "Error: Failed to call salloc as validation of params failed.\n");
         return NULL;
     }
-
+    
+    size_t alignmentPadding = getAlignmentPadding(buffer, alignment);
     char *ptr = (char*) buffer -> ptrToVirtualAddressSpace;
-    size_t totalAllocationSize = getAlignmentPadding(buffer, alignment) + blockSize;
+    size_t totalAllocationSize = alignmentPadding + blockSize;
+    ptr += alignmentPadding + buffer -> bufferOffset;
+
     if (!incrementBufferOffset(buffer, totalAllocationSize)) {
         fprintf(stderr, "Error: Failed to call salloc due to buffer overflow.\n");
         return NULL;
