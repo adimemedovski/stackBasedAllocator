@@ -37,7 +37,7 @@ bool validateMemoryBufferInit(MemoryBuffer *buffer) {
         return false; 
     } 
 
-    if (buffer -> ptrToVirtualAddressSpace == MAP_FAILED|| buffer -> ptrToVirtualAddressSpace == NULL) {
+    if (buffer -> ptrToVirtualAddressSpace == MAP_FAILED || buffer -> ptrToVirtualAddressSpace == NULL) {
         fprintf(stderr, "error: validation of the initialisation of memory buffer failed -- ptrtovirtualaddressspace failed to map correctly.\n");
         return false;
     }
@@ -46,6 +46,10 @@ bool validateMemoryBufferInit(MemoryBuffer *buffer) {
 }
 
 bool validateMemoryBuffer(MemoryBuffer *buffer) {
+    if (buffer == NULL) {
+        fprintf(stderr, "Error: Failed to validate memory buffer as buffer == NULL.\n");
+        return false;
+    } 
     if (buffer -> ptrToVirtualAddressSpace == MAP_FAILED || buffer -> ptrToVirtualAddressSpace == NULL) {
         fprintf(stderr, "Error: Validation of memory buffer failed -- ptrToVirtualAddressSpace is invalid.\n");
         return false;
@@ -109,7 +113,7 @@ int getAlignmentPadding(MemoryBuffer *buffer, size_t alignment) {
 
 static bool validateParamsOfSalloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment) {
     if (!validateMemoryBuffer(buffer) || alignment == 0 || blockSize == 0 ||
-            (buffer -> bufferOffset > MAX_MEMORY_BUFFER_SIZE - blockSize - alignment)) {
+            (buffer -> bufferOffset + alignment > MAX_MEMORY_BUFFER_SIZE - blockSize )) {
         return false;
         
     }
@@ -126,7 +130,7 @@ void *salloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment) {
     size_t alignmentPadding = getAlignmentPadding(buffer, alignment);
     char *ptr = (char*) buffer -> ptrToVirtualAddressSpace;
     size_t totalAllocationSize = alignmentPadding + blockSize;
-    ptr += alignmentPadding + buffer -> bufferOffset;
+    ptr += buffer -> bufferOffset + alignmentPadding;
 
     if (!incrementBufferOffset(buffer, totalAllocationSize)) {
         fprintf(stderr, "Error: Failed to call salloc due to buffer overflow.\n");
@@ -160,7 +164,7 @@ static bool validateParamsOfPopAllocation(MemoryBuffer *buffer) {
 }
 
 static bool handlePopAllocation(MemoryBuffer *buffer) {
-    if (buffer -> bufferOffset - (buffer -> allocationSizeTracker[buffer -> sizeOfTracker]) < 0) {
+    if (buffer -> bufferOffset - (buffer -> allocationSizeTracker[buffer -> sizeOfTracker - 1]) < 0) {
         fprintf(stderr, "Error: Failed to decrement bufferOffset due to negative value.\n");
         return false;
     }
