@@ -17,19 +17,6 @@ typedef struct {
 
 bool initMemoryBuffer(MemoryBuffer *buffer);
 
-bool validateMemoryBufferInit(MemoryBuffer *buffer);
-
-bool validateMemoryBuffer(MemoryBuffer *buffer);
-
-bool incrementBufferOffset(MemoryBuffer *buffer, size_t offsetAmount);
-
-/*
- * alocationAmount = blockSize + alignment.
- */
-bool addAllocationAmount(MemoryBuffer *buffer, size_t allocationAmount);
-
-int getAlignmentPadding(MemoryBuffer *buffer, size_t alignment);
-
 void *salloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment);
 
 bool psalloc(MemoryBuffer *buffer);

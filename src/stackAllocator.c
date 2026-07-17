@@ -15,14 +15,15 @@ bool initMemoryBuffer(MemoryBuffer *buffer) {
     
     if (buffer -> ptrToVirtualAddressSpace == MAP_FAILED) {
         fprintf(stderr, "Error: Failed to initialise memory buffer as mmap failed.\n");
+        buffer -> ptrToVirtualAddressSpace == NULL;
         return false;
     }
 
     return true;
 }
 
-bool validateMemoryBufferInit(MemoryBuffer *buffer) {
-    if ((buffer == (MemoryBuffer*) NULL) || (buffer == NULL)) {
+static bool validateMemoryBufferInit(MemoryBuffer *buffer) {
+    if (buffer == NULL) {
         fprintf(stderr, "Error: Validation of the initialisation of memory buffer failed -- buffer == NULL.\n");
         return false;
     }
@@ -45,7 +46,7 @@ bool validateMemoryBufferInit(MemoryBuffer *buffer) {
     return true;
 }
 
-bool validateMemoryBuffer(MemoryBuffer *buffer) {
+static bool validateMemoryBuffer(MemoryBuffer *buffer) {
     if (buffer == NULL) {
         fprintf(stderr, "Error: Failed to validate memory buffer as buffer == NULL.\n");
         return false;
@@ -58,26 +59,41 @@ bool validateMemoryBuffer(MemoryBuffer *buffer) {
     return true;
 }
 
-
-bool incrementBufferOffset(MemoryBuffer *buffer, size_t offsetAmount) {
-    if (buffer -> bufferOffset > MAX_MEMORY_BUFFER_SIZE - offsetAmount) {
+static bool incrementBufferOffset(MemoryBuffer *buffer, size_t offsetAmount) {
+    if (offsetAmount > MAX_MEMORY_BUFFER_SIZE) {
         fprintf(stderr, "Error: Failed to increment buffer due to buffer overflow.\n");
         return false;
     } 
+
+    if (buffer -> bufferOffset >= MAX_MEMORY_BUFFER_SIZE) {
+        fprintf(stderr, "Error: Failed to increment buffer due to buffer overflow.\n");
+        return false;
+    }
+
+    size_t remainder = MAX_MEMORY_BUFFER_SIZE - buffer -> bufferOffset;
+
+    if (offsetAmount > remainder) {
+        fprintf(stderr, "Error: Failed to call increment buffer due to buffer overflow.\n");
+        return false;
+    }
 
     buffer -> bufferOffset += offsetAmount;
     return true;
 }
 
-
-bool addAllocationAmount(MemoryBuffer *buffer, size_t allocationAmount) {
+static bool addAllocationAmount(MemoryBuffer *buffer, size_t allocationAmount) {
     if (allocationAmount > MAX_MEMORY_BUFFER_SIZE - buffer -> bufferOffset) {
         fprintf(stderr, "Error: Failed to add allocation amount due to buffer overflow.\n");
 
         return false;
     } 
     
-    if (buffer -> sizeOfTracker + 1 > MAX_ALLOCATIONS) {
+    if (MAX_ALLOCATIONS == 0) {
+        fprintf(stderr, "Error: Failed to getAllocationAmount as MAX_ALLOCATIONS == 0.\n");
+        return false;
+    }
+
+    if (buffer -> sizeOfTracker > MAX_ALLOCATIONS - 1) {
         fprintf(stderr, "Error: Failed to add alloaction due to maximum allocation amount being exceeded.\n");
         return false;
     }
@@ -87,8 +103,7 @@ bool addAllocationAmount(MemoryBuffer *buffer, size_t allocationAmount) {
     return true;
 }
 
-
-int getAlignmentPadding(MemoryBuffer *buffer, size_t alignment) {
+static int getAlignmentPadding(MemoryBuffer *buffer, size_t alignment) {
     if (!validateMemoryBuffer(buffer)) {
         fprintf(stderr, "Error: Failed to call performBufferAlignment as buffer failed validation.\n");
         return -1;
@@ -98,7 +113,6 @@ int getAlignmentPadding(MemoryBuffer *buffer, size_t alignment) {
         fprintf(stderr, "Error: Failed to call performBufferAlignment due to division by zero error -- alignment cannot be zero.\n");
         return -1;
     }
-
 
     size_t address = (size_t) buffer -> ptrToVirtualAddressSpace + buffer -> bufferOffset;
     
@@ -112,10 +126,19 @@ int getAlignmentPadding(MemoryBuffer *buffer, size_t alignment) {
 }
 
 static bool validateParamsOfSalloc(MemoryBuffer *buffer, size_t blockSize, size_t alignment) {
-    if (!validateMemoryBuffer(buffer) || alignment == 0 || blockSize == 0 ||
-            (buffer -> bufferOffset + alignment > MAX_MEMORY_BUFFER_SIZE - blockSize )) {
+    if (!validateMemoryBuffer(buffer)) {
+        fprintf(stderr, "Error: Failed to call salloc as buffer failed validation check.\n");
         return false;
-        
+    }
+
+    if (alignment == 0) {
+        fprintf(stderr, "Error: Failed to call salloc as alignment cannot be zero.\n");
+        return false;
+    }
+
+    if (blockSize == 0) {
+        fprintf(stderr, "Error: Failed to call salloc as blockSize cannot be zero.\n");
+        return false;
     }
 
     return true;
@@ -150,6 +173,7 @@ static bool validateParamsOfPopAllocation(MemoryBuffer *buffer) {
         fprintf(stderr, "Error: Failed to call psalloc as buffer is invalid.\n");
         return false;
     } 
+    
     if (buffer -> sizeOfTracker == 0) {
         fprintf(stderr, "Error: Failed to call psalloc as there is no allocation to pop.\n");
         return false;
@@ -164,6 +188,10 @@ static bool validateParamsOfPopAllocation(MemoryBuffer *buffer) {
 }
 
 static bool handlePopAllocation(MemoryBuffer *buffer) {
+    /*
+     * Pretty pointless check; size_t types cannot product negative results.
+     * Refactoring needed.
+     */
     if (buffer -> bufferOffset - (buffer -> allocationSizeTracker[buffer -> sizeOfTracker - 1]) < 0) {
         fprintf(stderr, "Error: Failed to decrement bufferOffset due to negative value.\n");
         return false;
@@ -204,7 +232,7 @@ bool dsalloc(MemoryBuffer *buffer) {
 
     buffer -> sizeOfTracker = 0;
     buffer -> bufferOffset = 0;
-    
+
     return true;
 }
 
@@ -213,7 +241,7 @@ bool rsalloc(MemoryBuffer *buffer) {
         fprintf(stderr, "Error: Failed to call dsalloc as memory buffer failed validation.\n");
         return false;
     }
-
+    
     for (size_t i = 0; i < buffer -> sizeOfTracker; i++) {
         buffer -> allocationSizeTracker[i] = 0;
     }

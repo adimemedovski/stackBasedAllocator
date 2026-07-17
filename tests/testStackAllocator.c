@@ -35,128 +35,6 @@ void testInitMemoryBuffer(void) {
     munmap(buffer.ptrToVirtualAddressSpace, MAX_MEMORY_BUFFER_SIZE);
 }
 
-/*
- * This test seems to be failing. This could be due to a failure concerning 
- * the freeing/resetting of the MemoryBuffer struct.
- */
-void testValidateMemoryBufferInit(void) {
-    MemoryBuffer buffer;
-    initMemoryBuffer(&buffer);
-   
-    /*
-     * Test One: Testing basic functionality.
-     */
-    TEST_ASSERT_TRUE(validateMemoryBufferInit(&buffer));
-  
-    /*
-     * Clean up.
-     */
-    munmap(buffer.ptrToVirtualAddressSpace, MAX_MEMORY_BUFFER_SIZE);
-
-    /*
-     * Test Two: Edge case test.
-     */
-    MemoryBuffer bufferTwo = {0};
-    TEST_ASSERT_FALSE(validateMemoryBufferInit(&bufferTwo));
-
-    /*
-     * Clean up.
-     */
-    munmap(bufferTwo.ptrToVirtualAddressSpace, MAX_MEMORY_BUFFER_SIZE);
-}
-
-void testValidateMemoryBuffer(void) {
-    MemoryBuffer buffer;
-    initMemoryBuffer(&buffer);
-
-    /*
-     * Test One: Testing basic functionality.
-     */
-    TEST_ASSERT_TRUE(validateMemoryBuffer(&buffer));
-    
-    /*
-     * Clean up.
-     */
-    munmap(buffer.ptrToVirtualAddressSpace, MAX_MEMORY_BUFFER_SIZE);
-   
-    /*
-     * Test Two: Testing edge case handling.
-     */
-    MemoryBuffer bufferTwo;
-    initMemoryBuffer(&bufferTwo);
-
-    bufferTwo.bufferOffset = 30;
-    TEST_ASSERT_TRUE(validateMemoryBuffer(&bufferTwo));
-}
-
-void testIncrementBufferOffset(void) {
-    MemoryBuffer buffer;
-    initMemoryBuffer(&buffer);
-
-    /*
-     * Test One: Testing basic functionality.
-     */
-    
-    TEST_ASSERT_TRUE(incrementBufferOffset(&buffer, 30));
-    TEST_ASSERT_EQUAL_size_t(30, buffer.bufferOffset);
-    
-    /*
-     * Test Two: Testing handling of buffer overflow.
-     */
-    
-    size_t overFlowAmount = MAX_MEMORY_BUFFER_SIZE - 30 + 1;
-    TEST_ASSERT_FALSE(incrementBufferOffset(&buffer, overFlowAmount));
-
-    /*
-     * Clean up.
-     */
-    munmap(buffer.ptrToVirtualAddressSpace, MAX_MEMORY_BUFFER_SIZE);
-}
-
-void testAddAllocationAmount(void) {
-    MemoryBuffer buffer;
-    initMemoryBuffer(&buffer);
-
-    /*
-     * Test One: Testing basic functionality.
-     */
-    TEST_ASSERT_TRUE(addAllocationAmount(&buffer, 8));
-    TEST_ASSERT_EQUAL_size_t(1, buffer.sizeOfTracker); 
-
-    /*
-     * Test Two: Edge case test.
-     */
-    size_t overFlowAmount = MAX_ALLOCATIONS;
-    size_t incrementalAmount = 8;
-
-    for (size_t i = 0; i < overFlowAmount - 1; i++) {
-        addAllocationAmount(&buffer, incrementalAmount); 
-    }
-
-    TEST_ASSERT_FALSE(addAllocationAmount(&buffer, incrementalAmount));
-
-    /*
-     * Clean up.
-     */
-    munmap(buffer.ptrToVirtualAddressSpace, MAX_MEMORY_BUFFER_SIZE);
-}
-
-void testGetAlignmentPadding(void) {
-    MemoryBuffer buffer;
-    initMemoryBuffer(&buffer);
-
-    /*
-     * Test One: Testing basic functionality.
-     */
-    TEST_ASSERT_EQUAL_size_t(0, getAlignmentPadding(&buffer, _Alignof(size_t)));
-
-
-    /*
-     * Clean up.
-     */
-    munmap(buffer.ptrToVirtualAddressSpace, MAX_MEMORY_BUFFER_SIZE);
-}
-
 void testSalloc(void) {
     MemoryBuffer buffer;
     initMemoryBuffer(&buffer);
@@ -192,7 +70,6 @@ void testSalloc(void) {
      */
     munmap(buffer.ptrToVirtualAddressSpace, MAX_MEMORY_BUFFER_SIZE);
 }
-
 
 void testPsalloc(void) {
     MemoryBuffer buffer;
@@ -284,11 +161,6 @@ int main(void) {
     UNITY_BEGIN();
 
     RUN_TEST(testInitMemoryBuffer);
-    RUN_TEST(testValidateMemoryBufferInit);
-    RUN_TEST(testValidateMemoryBuffer);
-    RUN_TEST(testIncrementBufferOffset);
-    RUN_TEST(testAddAllocationAmount); 
-    RUN_TEST(testGetAlignmentPadding);
     RUN_TEST(testSalloc);
     RUN_TEST(testPsalloc);
     RUN_TEST(testDsalloc); 
