@@ -9,37 +9,18 @@
 #include <string.h>
 
 bool initMemoryBuffer(MemoryBuffer *buffer) {
+    if (buffer == NULL) {
+        fprintf(stderr, "Error: Failed to init buffer as buffer is NULL.\n");
+        return false;
+    } 
+
     buffer -> bufferOffset = 0;
     buffer -> sizeOfTracker = 0;
     buffer -> ptrToVirtualAddressSpace = (void*) mmap(NULL, MAX_MEMORY_BUFFER_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     
     if (buffer -> ptrToVirtualAddressSpace == MAP_FAILED) {
         fprintf(stderr, "Error: Failed to initialise memory buffer as mmap failed.\n");
-        buffer -> ptrToVirtualAddressSpace == NULL;
-        return false;
-    }
-
-    return true;
-}
-
-static bool validateMemoryBufferInit(MemoryBuffer *buffer) {
-    if (buffer == NULL) {
-        fprintf(stderr, "Error: Validation of the initialisation of memory buffer failed -- buffer == NULL.\n");
-        return false;
-    }
-
-    if (buffer -> bufferOffset != 0) {
-        fprintf(stderr, "Error: Validation of the initialisation of memory buffer failed -- bufferOffset != 0.\n");
-        return false;
-    }
-
-    if (buffer -> sizeOfTracker != 0) {
-        fprintf(stderr, "Error: Validation of the initialisation of memory buffer failed -- sizeOfTracker != 0.\n");
-        return false; 
-    } 
-
-    if (buffer -> ptrToVirtualAddressSpace == MAP_FAILED || buffer -> ptrToVirtualAddressSpace == NULL) {
-        fprintf(stderr, "error: validation of the initialisation of memory buffer failed -- ptrtovirtualaddressspace failed to map correctly.\n");
+        buffer -> ptrToVirtualAddressSpace = NULL;
         return false;
     }
 
@@ -196,6 +177,7 @@ static bool handlePopAllocation(MemoryBuffer *buffer) {
     buffer -> bufferOffset -= buffer -> allocationSizeTracker[buffer -> sizeOfTracker - 1];
     buffer -> allocationSizeTracker[buffer -> sizeOfTracker - 1] = 0;
     buffer -> sizeOfTracker -= 1;
+    
     return true;
 }
 
