@@ -188,11 +188,7 @@ static bool validateParamsOfPopAllocation(MemoryBuffer *buffer) {
 }
 
 static bool handlePopAllocation(MemoryBuffer *buffer) {
-    /*
-     * Pretty pointless check; size_t types cannot product negative results.
-     * Refactoring needed.
-     */
-    if (buffer -> bufferOffset - (buffer -> allocationSizeTracker[buffer -> sizeOfTracker - 1]) < 0) {
+    if (buffer -> bufferOffset < buffer -> allocationSizeTracker[buffer -> sizeOfTracker - 1]) {
         fprintf(stderr, "Error: Failed to decrement bufferOffset due to negative value.\n");
         return false;
     }
